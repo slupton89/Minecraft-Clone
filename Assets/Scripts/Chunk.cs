@@ -22,6 +22,7 @@ public class Chunk : MonoBehaviour {
     private int chunkY;
     private int chunkZ;
     private GameObject worldGameObject;
+    private bool isUpdate;
 
     //Textures
     private Vector2 grassTop = new Vector2(1, 11);
@@ -68,6 +69,14 @@ public class Chunk : MonoBehaviour {
         }
     }
 
+    public bool IsUpdate {
+        get {
+            return isUpdate;
+        } set {
+            isUpdate = value;
+        }
+    }
+
     public 
 	void Start () {
 
@@ -79,8 +88,11 @@ public class Chunk : MonoBehaviour {
 
 	}
 	
-	void Update () {
-		
+	void LateUpdate () {
+		if(IsUpdate) {
+            GenerateMesh();
+            IsUpdate = false;
+        }
 	}
 
     void GenerateMesh() {

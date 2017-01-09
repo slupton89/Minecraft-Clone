@@ -18,6 +18,25 @@ public class World : MonoBehaviour {
     private byte[,,] worldData;
     private Chunk[,,] chunks;
 
+    public int ChunkSize {
+        get {
+            return chunkSize;
+        }
+    }
+    
+    public Chunk[,,] Chunks {
+        get {
+            return chunks;
+        }
+    } 
+
+    public byte[,,] WorldData {
+        get {
+            return worldData;
+        } set {
+            worldData = value;
+        }
+    }
 
     void Start () {
 
@@ -78,5 +97,23 @@ public class World : MonoBehaviour {
         }
 
         return worldData[x, y, z];
+    }
+
+    public void GenerateChunk(int x, int z) {
+        for (int y = 0; y < chunks.GetLength(1); y++) {
+            GameObject newChunk = Instantiate(chunk, new Vector3(x * chunkSize - 0.5f, y * chunkSize + 0.5f, z * chunkSize - 0.5f), new Quaternion(0, 0, 0, 0)) as GameObject;
+            chunks[x, y, z] = newChunk.GetComponent("Chunk") as Chunk;
+            chunks[x, y, z].WorldGameObject = gameObject;
+            chunks[x, y, z].ChunkSize = chunkSize;
+            chunks[x, y, z].ChunkX = x * chunkSize;
+            chunks[x, y, z].ChunkY = y * chunkSize;
+            chunks[x, y, z].ChunkZ = z * chunkSize;
+       }
+    }
+
+    public void DestroyChunk(int x, int z) {
+        for (int y = 0; y < chunks.GetLength(1); y++) {
+            Object.Destroy(Chunks[x, y, z].gameObject);
+        }
     }
 }

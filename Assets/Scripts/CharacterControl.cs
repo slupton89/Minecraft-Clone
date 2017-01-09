@@ -10,40 +10,49 @@ public class CharacterControl : MonoBehaviour {
     [SerializeField]
     int jumpHeight;
 
-    private Rigidbody charRigidbody;
     private Animator anim;
+    private AudioSource audioSource;
 
 	// Use this for initialization
 	void Start () {
-        charRigidbody = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
         Vector3 moveChar = new Vector3(CrossPlatformInputManager.GetAxis("Horizontal"), 0, CrossPlatformInputManager.GetAxis("Vertical"));
-        transform.position += moveChar * Time.deltaTime * moveSpeed;
-
-        if(charRigidbody.velocity.magnitude == 0) {
-            anim.SetBool("IsWalking", false);
-        } else {
+        
+        if(moveChar != Vector3.zero) {
             anim.SetBool("IsWalking", true);
+            Quaternion targetRotation = Quaternion.LookRotation(moveChar, Vector3.up);
+            transform.rotation = targetRotation;
+        } else {
+            anim.SetBool("IsWalking", false);
         }
 
-        if(GameManager.Instance.IsJumping) {
+        transform.position += moveChar * Time.deltaTime * moveSpeed;
+
+        if (GameManager.Instance.IsJumping) {
             anim.SetTrigger("Jump");
+            audioSource.PlayOneShot(AudioManager.Instance.Jump);
             transform.Translate(Vector3.up * jumpHeight * Time.deltaTime, Space.World);
             GameManager.Instance.IsJumping = false;
         }
 
         if (GameManager.Instance.IsPunching) {
             anim.SetTrigger("Punch");
-            GameManager.Instance.IsPunching = false;      
+            audioSource.PlayOneShot(AudioManager.Instance.Punch);
+            ModifyTerrain.Instance.DestroyBlock(10f, (byte)TextureType.air.GetHashCode()); 
+            GameManager.Instance.IsPunching = false;
+             
         }
 
         if (GameManager.Instance.IsBuilding) {
             anim.SetTrigger("Punch");
+            audioSource.PlayOneShot(AudioManager.Instance.Build);
             GameManager.Instance.IsBuilding = false;
+            ModifyTerrain.Instance.AddBlock(10f, (byte)TextureType.rock.GetHashCode());
         }
     }
 }
